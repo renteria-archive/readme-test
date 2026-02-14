@@ -28,11 +28,12 @@ The primary objective of V1 was to minimize financial loss by maximizing **Recal
 
 Three architectures were evaluated during the experimentation phase. **XGBoost** was selected as the production model due to its superior handling of class imbalance via `scale_pos_weight` and inference speed.
 
-| **Model** | **Recall (Fraud)** | **Precision (Fraud)** | **PR-AUC** | **Verdict** |
-| --- | --- | --- | --- | --- |
-| **Logistic Regression** | 0.82 | 0.15 | 0.65 | Baseline. Too many false positives. |
-| **Random Forest** | 0.78 | **0.88** | 0.84 | High precision, but missed crucial fraud cases (lower recall). |
-| **XGBoost (Tuned)** | **0.87** | 0.82 | **0.88** | **Selected.** Best balance of Recall/Precision. |
+| **Model**               | **Recall** | **Precision** | **PR-AUC** | **Verdict**                                  |
+|-------------------------|------------|---------------|------------|---------------------------------------------|
+| Logistic Regression      | 0.82       | 0.15          | 0.65       | Baseline. Many false positives              |
+| Random Forest            | 0.78       | **0.88**      | 0.84       | High precision, missed crucial fraud        |
+| XGBoost (Tuned)          | **0.87**   | 0.82          | **0.88**   | **Selected.** Best Recall/Precision balance|
+
 
 ### Production Performance (V1)
 
