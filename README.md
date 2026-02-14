@@ -52,11 +52,11 @@ Raw data is never enough. The `src/features` module implements custom Scikit-lea
   - The `Time` variable (seconds elapsed) is converted into **hours of the day**.
   - Transformed into **sine/cosine** components to preserve the cyclical nature of time (23:00 is close to 00:00).
   - *Logic:* 
-    $$
-    \text{hour\_sin} = \sin\left(\frac{2\pi \cdot t}{24}\right),
-    \quad
-    \text{hour\_cos} = \cos\left(\frac{2\pi \cdot t}{24}\right)
-    $$
+$$
+\text{hour\_sin} = \sin\left(\frac{2\pi \cdot t}{24}\right),
+\quad
+\text{hour\_cos} = \cos\left(\frac{2\pi \cdot t}{24}\right)
+$$
     
 2. **Amount Scaling & Flagging**
   - **Log Transformation:** Applied $\log(1 + x)$ to `Amount` to handle extreme right-skewness.
