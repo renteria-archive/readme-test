@@ -4,10 +4,11 @@
 
 ![Python](https://img.shields.io/badge/Python-3.10-blue?style=flat&logo=python&logoColor=white)
 ![XGBoost](https://img.shields.io/badge/XGBoost-2.0.3-red?style=flat)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.108-009688?style=flat&logo=fastapi&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.111-009688?style=flat&logo=fastapi&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=flat&logo=docker&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-green?style=flat)
 ![Status](https://img.shields.io/badge/Status-V1_Complete-success?style=flat)
+![Last Commit](https://img.shields.io/github/last-commit/renteria-luis/fraud-detection-v1)
 > **High-Recall Operational Fraud Detection Pipeline.**
 > 
 > A production-ready Machine Learning system designed to identify fraudulent transactions in highly imbalanced datasets ($598:1$). Engineered with a focus on modularity, reproducibility, and real-time inference using Docker and FastAPI.
