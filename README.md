@@ -200,8 +200,8 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ## 📬 Contact
 
-**Luis Renteria**
-
+**Luis Renteria**  
 *Machine Learning Engineer | Data Scientist*
 
-[LinkedIn](https://www.linkedin.com/in/renteria-luis/) | [Email](mailto:luis.renteria.dev@gmail.com)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/renteria-luis/) 
+[![Email](https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:luis.renteria.dev@gmail.com)
