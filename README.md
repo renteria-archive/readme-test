@@ -18,21 +18,13 @@
 
 The primary objective of V1 was to minimize financial loss by maximizing **Recall** (capturing as many frauds as possible) while maintaining an operationally manageable False Positive Rate.
 
+**Key metrics:** Recall captures real frauds (higher → fewer losses), Precision measures true alerts (higher → fewer false alarms), PR-AUC shows overall fraud separation ability. F1-Score, ROC-AUC, and Accuracy are not used in production.
+
 ### The Challenge: Extreme Imbalance
 
 The dataset presents a severe imbalance (0.17% Fraud vs 99.83% Legitimate), requiring specialized techniques like `scale_pos_weight` in XGBoost rather than standard accuracy metrics.
 
 ![Fig 1. The 598:1 ratio makes standard accuracy a misleading metric](https://github.com/renteria-luis/fraud-detection-v1/raw/main/assets/figures/class_distribution.png)
-
-| Metric    | What It Measures | If It Increases     | If It Decreases     | Priority      |
-|-----------|-----------------|-------------------|-------------------|---------------|
-| Recall    | Real frauds      | Catch more fraud  | Miss more fraud   | #1 CRITICAL   |
-| Precision | True alerts      | Fewer false alarms | More false alarms | #2 MAJOR  |
-| PR-AUC    | Fraud separation | Better detection  | Worse detection   | #3 KEY        |
-| F1-Score  | Precision+Recall | Redundant         | -                 | NOT USED      |
-| ROC-AUC   | Class separability | PR-AUC better   | -                 | NOT USED      |
-| Accuracy  | Overall correct  | Misleading        | -                 | NOT USED      |
-
 
 ---
 
