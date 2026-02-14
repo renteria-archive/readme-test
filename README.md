@@ -12,14 +12,15 @@ The primary objective of V1 was to minimize financial loss by maximizing **Recal
 
 ### Fraud Detection Metrics
 
-| Metric | What It Measures | If It Increases | If It Decreases | Priority |
-| --- | --- | --- | --- | --- |
-| Recall | How many real frauds we catch | Catch more fraud → lose less money | Miss more fraud → lose money directly | #1 CRITICAL |
-| Precision | How many alerts are actual fraud | Fewer false alarms → lower ops costs, happier customers | More false alarms → high costs, customer friction | #2 IMPORTANT |
-| PR-AUC | Model's overall fraud separation ability | Better fraud detection globally | Worse fraud detection globally | #3 KEY |
-| F1-Score | Balance of precision and recall | Redundant (Recall + Precision) | -   | NOT USED |
-| ROC-AUC | General class separability | PR-AUC works better here | -   | NOT USED |
-| Accuracy | Overall correctness | Misleading — model predicting all as "not fraud" gets 99%+ | NOT USED | NOT USED |
+| Metric    | What It Measures | If It Increases     | If It Decreases     | Priority      |
+|-----------|-----------------|-------------------|-------------------|---------------|
+| Recall    | Real frauds      | Catch more fraud  | Miss more fraud   | #1 CRITICAL   |
+| Precision | True alerts      | Fewer false alarms | More false alarms | #2 MAJOR  |
+| PR-AUC    | Fraud separation | Better detection  | Worse detection   | #3 KEY        |
+| F1-Score  | Precision+Recall | Redundant         | -                 | NOT USED      |
+| ROC-AUC   | Class separability | PR-AUC better   | -                 | NOT USED      |
+| Accuracy  | Overall correct  | Misleading        | -                 | NOT USED      |
+
 
 ---
 
