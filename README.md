@@ -1,3 +1,16 @@
+![Status](https://img.shields.io/badge/Status-V1_Complete-success?style=flat&logo=git)
+![License](https://img.shields.io/badge/License-MIT-green?style=flat)
+![Python](https://img.shields.io/badge/Python-3.10-blue?style=flat&logo=python&logoColor=white)
+
+![XGBoost](https://img.shields.io/badge/XGBoost-Production-red?style=flat&logo=xgboost&logoColor=white)
+![Scikit-Learn](https://img.shields.io/badge/scikit_learn-1.2+-orange?style=flat&logo=scikit-learn&logoColor=white)
+![Pandas](https://img.shields.io/badge/Pandas-Data_Processing-150458?style=flat&logo=pandas&logoColor=white)
+![Imbalanced-Learn](https://img.shields.io/badge/Imbalanced_Learn-SMOTE-brown?style=flat)
+
+![FastAPI](https://img.shields.io/badge/FastAPI-High_Performance-009688?style=flat&logo=fastapi&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-Containerized-2496ED?style=flat&logo=docker&logoColor=white)
+![Pydantic](https://img.shields.io/badge/Pydantic-Validation-e92063?style=flat&logo=pydantic&logoColor=white)
+![Code Style](https://img.shields.io/badge/Code%20Style-Black-000000?style=flat)
 # 🛡️ End-to-End Credit Card Fraud Detection System (V1)
 
 > **High-Recall Operational Fraud Detection Pipeline.**
@@ -57,12 +70,12 @@ Raw data is never enough. The `src/features` module implements custom Scikit-lea
     
 2. **Amount Scaling & Flagging**
   - **Log Transformation:** Applied $\log(1 + x)$ to `Amount` to handle extreme right-skewness.
-  - **Micro/Macro Flags:** Binary features for very small (`<1`) or large (`>95th percentile`) transactions.
+  - **Micro/Macro Flags:** Binary features for very small $(<\$1)$ or large $(>95th percentile)$ transactions.
   - **Night Transaction Flag:** Binary feature for transactions between 22:00–06:00.
-    
+> **Rationale:** Tree models benefit from explicit boolean flags + continuous features.
+
 3. **Anonymized Features:**
-  
-  - `V1`...`V28` (PCA components) were standardized but left otherwise untouched to preserve their principal component properties.
+  - `V1`...`V28` (PCA components) were left otherwise untouched to preserve their principal component properties.
 
 ---
 
@@ -114,7 +127,6 @@ docker compose up --build
 ```
 
 - **API Health Check:** `http://localhost:8000/health`
-  
 - **Interactive Docs (Swagger):** `http://localhost:8000/docs`
   
 
@@ -154,17 +166,44 @@ curl -X POST "http://localhost:8000/predict" \
 
 ## 🔮 Roadmap: V1 vs V2
 
-This project is evolving. **V1 (Current)** established a robust classical ML baseline. **V2 (Planned)** will introduce Deep Learning to capture non-linear patterns that XGBoost misses.
+This project is evolving. V1 (Current) established a robust classical ML baseline with XGBoost. **V2 (Planned)** will introduce Deep Learning to capture more complex patterns and interactions that may be missed by tree-based models.
 
 | **Feature** | **V1 (Current)** | **V2 (Planned)** |
 | --- | --- | --- |
-| **Algorithm** | XGBoost (Gradient Boosting) | Deep Neural Network (PyTorch) |
-| **Loss Function** | LogLoss (Weighted) | Focal Loss (Hard Example Mining) |
+| **Algorithm** | XGBoost (eXtreme Gradient Boosting) | Deep Neural Network (PyTorch) |
+| **Loss Function** | Binary cross-entropy (Weighted) | Focal Loss (Hard Example Mining) |
 | **Explainability** | Feature Importance | SHAP (DeepExplainer) |
 | **Compute** | CPU Optimized | GPU Accelerated (CUDA) |
-| **Infrastructure** | Docker Compose | Kubernetes / Cloud Run |
 
 ---
+
+## 📓 Notebooks Guide
+
+### `01_eda.ipynb` - Exploratory Data Analysis
+**Key Findings:**
+- Severe class imbalance (598:1 ratio)
+- Time exhibits clear day/night patterns
+- Amount is highly right-skewed
+- V14, V12, V10 are most correlated with fraud
+
+**Outputs:** Distribution plots, correlation heatmap, temporal analysis
+
+### `02_baseline_models.ipynb` - Model Training & Evaluation
+**Contents:**
+1. Feature engineering implementation
+2. Pipeline construction (preprocessing + model)
+3. Model comparison (LogReg, RF, XGBoost)
+4. Hyperparameter tuning (RandomizedSearchCV)
+5. Threshold optimization for production
+6. Model export & metadata generation
+
+**Outputs:** Trained model (.pkl), metrics, confusion matrix, feature importance
+
+---
+
+## 📜 License
+
+MIT License - see [LICENSE](LICENSE) file for details.
 
 ## 📬 Contact
 
