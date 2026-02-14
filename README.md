@@ -3,7 +3,6 @@
 **End-to-end credit card fraud detection using XGBoost, FastAPI & Docker**
 
 ![Python](https://img.shields.io/badge/Python-3.10-blue?style=flat&logo=python&logoColor=white)
-![Python](https://img.shields.io/github/languages/top/renteria-luis/fraud-detection-v1?color=blue&logo=python)
 ![XGBoost](https://img.shields.io/badge/XGBoost-2.0.3-red?style=flat)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.111-009688?style=flat&logo=fastapi&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=flat&logo=docker&logoColor=white)
