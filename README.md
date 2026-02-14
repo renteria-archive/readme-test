@@ -52,8 +52,8 @@ Raw data is never enough. The `src/features` module implements custom Scikit-lea
   - The `Time` variable (seconds elapsed) is converted into **hours of the day**.
   - Transformed into **sine/cosine** components to preserve the cyclical nature of time (23:00 is close to 00:00).
   - *Logic:*
-    - $\text{hour_sin} = sin(2 \pi t / 24)$
-    - $\text{hour_cos} = cos(2 \pi t / 24)$
+    - $hoursin = sin(2 \pi t / 24)$
+    - $hourcos = cos(2 \pi t / 24)$
     
 2. **Amount Scaling & Flagging**
   - **Log Transformation:** Applied $\log(1 + x)$ to `Amount` to handle extreme right-skewness.
@@ -136,15 +136,46 @@ Once the container is running, you can detect fraud via `curl` or Python:
 ```bash
 curl -X POST "http://localhost:8000/predict" \
      -H "Content-Type: application/json" \
-     -d '{           "Time": 1000.0,           "Amount": 150.0,           "V1": -1.3, "V2": 1.1, "V3": -0.5, "V4": 0.3, "V5": 0.2,           "V6": -0.1, "V7": 0.5, "V8": 0.2, "V9": -0.4, "V10": 0.1,           "V11": -0.5, "V12": 0.3, "V13": 0.1, "V14": -0.2, "V15": 0.4,           "V16": -0.3, "V17": 0.2, "V18": 0.1, "V19": -0.1, "V20": 0.1,           "V21": 0.2, "V22": -0.1, "V23": 0.1, "V24": 0.1, "V25": -0.2,           "V26": 0.1, "V27": 0.1, "V28": -0.1         }'
-```
+     -d '{
+           "Time": 1000.0,
+           "Amount": 150.0,
+           "V1": -1.3,
+           "V2": 1.1,
+           "V3": -0.5,
+           "V4": 0.3,
+           "V5": 0.2,
+           "V6": -0.1,
+           "V7": 0.5,
+           "V8": 0.2,
+           "V9": -0.4,
+           "V10": 0.1,
+           "V11": -0.5,
+           "V12": 0.3,
+           "V13": 0.1,
+           "V14": -0.2,
+           "V15": 0.4,
+           "V16": -0.3,
+           "V17": 0.2,
+           "V18": 0.1,
+           "V19": -0.1,
+           "V20": 0.1,
+           "V21": 0.2,
+           "V22": -0.1,
+           "V23": 0.1,
+           "V24": 0.1,
+           "V25": -0.2,
+           "V26": 0.1,
+           "V27": 0.1,
+           "V28": -0.1
+         }'
+
 
 **Response:**
 
 ```json
 {
-  "fraud_probability": 0.89,
-  "is_fraud": true,
+  "fraud_probability": 7.73e-07,
+  "is_fraud": false,
   "threshold_used": 0.2072,
   "model_version": "1.0.0"
 }
