@@ -50,19 +50,23 @@ Three architectures were evaluated during the experimentation phase. **XGBoost**
 
 Raw data is never enough. The `src/features` module implements custom Scikit-learn transformers to extract signal from noise:
 
-1. **Temporal Cyclical Encoding:**
+1. **Temporal Cyclical Encoding**
   
-  - The `Time` variable (seconds elapsed) was converted into hours of the day.
+  - The `Time` variable (seconds elapsed) is converted into **hours of the day**.
     
-  - Transformed into **Sine/Cosine** components to preserve the cyclical nature of time (23:00 is close to 00:00).
+  - Transformed into **sine/cosine** components to preserve the cyclical nature of time (23:00 is close to 00:00).
     
-  - *Logic:* $\sin(2\pi \cdot t / 24)$, $\cos(2\pi \cdot t / 24)$.
+  - *Logic:* 
+    $$\text{hour\_sin} = \sin\left(\frac{2\pi \cdot t}{24}\right), \quad
+     \text{hour\_cos} = \cos\left(\frac{2\pi \cdot t}{24}\right)$$
     
-2. **Amount Scaling & Flagging:**
+2. **Amount Scaling & Flagging**
   
-  - **Log Transformation:** Applied $\log(1+x)$ to `Amount` to handle the extreme right-skewness of transaction values.
+  - **Log Transformation:** Applied $\log(1 + x)$ to `Amount` to handle extreme right-skewness.
     
-  - **Micro/Macro Flags:** Binary features created for extremely small or large transactions based on quantile analysis.
+  - **Micro/Macro Flags:** Binary features for very small (`<1`) or large (`>95th percentile`) transactions.
+    
+  - **Night Transaction Flag:** Binary feature for transactions between 22:00–06:00.
     
 3. **Anonymized Features:**
   
