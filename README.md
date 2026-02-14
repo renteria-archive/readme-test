@@ -17,7 +17,9 @@
 ## 📊 Executive Summary & Model Selection
 
 The primary objective of V1 was to minimize financial loss by maximizing **Recall** (capturing as many frauds as possible) while maintaining an operationally manageable False Positive Rate.
-![Fig 1. Class Distribution](https://github.com/renteria-luis/fraud-detection-v1/raw/main/assets/figures/class_distribution.png)
+<p align="center">
+  <img src="https://github.com/renteria-luis/fraud-detection-v1/raw/main/assets/figures/class_distribution.png" alt="Fig 1. Class Distribution" width="600"/>
+</p>
 
 ### The Challenge: Extreme Imbalance
 
