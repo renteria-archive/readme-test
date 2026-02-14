@@ -17,14 +17,11 @@
 ## 📊 Executive Summary & Model Selection
 
 The primary objective of V1 was to minimize financial loss by maximizing **Recall** (capturing as many frauds as possible) while maintaining an operationally manageable False Positive Rate.
-<p align="center">
-  <img src="https://github.com/renteria-luis/fraud-detection-v1/raw/main/assets/figures/class_distribution.png" alt="Fig 1. Class Distribution" width="600"/>
-</p>
 
 ### The Challenge: Extreme Imbalance
 
-The dataset presents a severe imbalance (0.17% Fraud vs 99.83% Legitimate), requiring specialized techniques like scale_pos_weight in XGBoost rather than standard accuracy metrics.
-
+The dataset presents a severe imbalance (0.17% Fraud vs 99.83% Legitimate), requiring specialized techniques like `scale_pos_weight` in XGBoost rather than standard accuracy metrics.
+![Fig 1. The 598:1 ratio makes standard accuracy a misleading metric](https://github.com/renteria-luis/fraud-detection-v1/raw/main/assets/figures/class_distribution.png)
 
 | Metric    | What It Measures | If It Increases     | If It Decreases     | Priority      |
 |-----------|-----------------|-------------------|-------------------|---------------|
@@ -53,27 +50,34 @@ Three architectures were evaluated during the experimentation phase. **XGBoost**
 
 - **Operational Threshold:** `0.2072` (Optimized for F2-Score/Recall).
 - **Business Impact:** The model captures **87%** of fraudulent transactions.
-- **Latency:** ~10 ms per transaction (p99 <50 ms) via FastAPI container.
+- **Latency:** ~10ms per transaction via FastAPI.
 
 ---
+## 🔎 Key Data Insights (EDA)
 
+Before modeling, an extensive exploratory analysis revealed critical patterns used for feature selection.
+
+1. Feature Separation:
+Variables V14, V10, and V12 showed the strongest discriminative power. As seen below, V14 provides a clear (though not perfect) separation boundary between classes compared to other features.
+![Fig 2. Scatter plot showing V14 vs Top 3 correlated features. Fraud points are distinct outliers](https://github.com/renteria-luis/fraud-detection-v1/raw/main/assets/figures/scatter_v14_vs_top3.png)
+
+---
 ## ⚙️ Feature Engineering Strategy
 
 Raw data is never enough. The `src/features` module implements custom Scikit-learn transformers to extract signal from noise:
 
 1. **Temporal Cyclical Encoding**
-  
-  - The `Time` variable (seconds elapsed) is converted into **hours of the day**.
-  - Transformed into **sine/cosine** components to preserve the cyclical nature of time (23:00 is close to 00:00).
-  - *Logic:*
-    - $hoursin = sin(2 \pi t / 24)$
-    - $hourcos = cos(2 \pi t / 24)$
+EDA revealed a distinct pattern: Fraudulent activity remains consistent during the night, while legitimate transactions drop drastically.
+![Fig 3. Density plot showing the "Night Valley" where legitimate traffic drops, but fraud persists](https://github.com/renteria-luis/fraud-detection-v1/raw/main/assets/figures/time_distribution.png)
+
+Based on this, we engineered:
+
+  - **Cyclical Encoding:** Converted `Time` to Sine/Cosine components $(sin(2πt/24))$ to preserve 24h continuity.
+  - **Is Night Flag:** Binary feature for transactions between 22:00–06:00.
     
-2. **Amount Scaling & Flagging**
+2. **Amount Scaling**
   - **Log Transformation:** Applied $\log(1 + x)$ to `Amount` to handle extreme right-skewness.
   - **Micro/Macro Flags:** Binary features for very small $(<\$1)$ or large $(>95th percentile)$ transactions.
-  - **Night Transaction Flag:** Binary feature for transactions between 22:00–06:00.
-> **Rationale:** Tree models benefit from explicit boolean flags + continuous features.
 
 3. **Anonymized Features:**
   - `V1`...`V28` (PCA components) were left otherwise untouched to preserve their principal component properties.
