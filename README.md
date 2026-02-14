@@ -59,7 +59,7 @@ Variables V14, V10, and V12 showed the strongest discriminative power. As seen b
 Raw data is never enough. The `src/features` module implements custom Scikit-learn transformers to extract signal from noise:
 
 1. **Temporal Cyclical Encoding**
-EDA revealed a distinct pattern: Fraudulent activity remains consistent during the night, while legitimate transactions drop drastically.
+EDA revealed a distinct pattern: Fraudulent activity remains consistent during the night, while legitimate transactions drop drastically. However, For this version, V1…V28 remain untouched to preserve their principal component properties.
 
 ![Fig 3. Density plot showing the "Night Valley" where legitimate traffic drops, but fraud persists](https://github.com/renteria-luis/fraud-detection-v1/raw/main/assets/figures/time_distribution.png)
 
