@@ -18,8 +18,6 @@
 
 The primary objective of V1 was to minimize financial loss by maximizing **Recall** (capturing as many frauds as possible) while maintaining an operationally manageable False Positive Rate.
 
-### Fraud Detection Metrics
-
 | Metric    | What It Measures | If It Increases     | If It Decreases     | Priority      |
 |-----------|-----------------|-------------------|-------------------|---------------|
 | Recall    | Real frauds      | Catch more fraud  | Miss more fraud   | #1 CRITICAL   |
@@ -47,7 +45,7 @@ Three architectures were evaluated during the experimentation phase. **XGBoost**
 
 - **Operational Threshold:** `0.2072` (Optimized for F2-Score/Recall).
 - **Business Impact:** The model captures **87%** of fraudulent transactions.
-- **Latency:** <50ms per transaction (p99) via FastAPI container.
+- **Latency:** ~10 ms per transaction (p99 <50 ms) via FastAPI container.
 
 ---
 
@@ -174,7 +172,7 @@ This project is evolving. V1 (Current) established a robust classical ML baselin
 
 ## 📓 Notebooks Guide
 
-### `01_eda.ipynb` - Exploratory Data Analysis
+### [`01_eda.ipynb`](notebooks/01_eda.ipynb) - Exploratory Data Analysis
 **Key Findings:**
 - Severe class imbalance (598:1 ratio)
 - Time exhibits clear day/night patterns
@@ -183,7 +181,7 @@ This project is evolving. V1 (Current) established a robust classical ML baselin
 
 **Outputs:** Distribution plots, correlation heatmap, temporal analysis
 
-### `02_baseline_models.ipynb` - Model Training & Evaluation
+### [`02_baseline_models.ipynb`](notebooks/02_baseline_models.ipynb) - Model Training & Evaluation
 **Contents:**
 1. Feature engineering implementation
 2. Pipeline construction (preprocessing + model)
