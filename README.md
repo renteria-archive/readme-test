@@ -17,6 +17,12 @@
 ## 📊 Executive Summary & Model Selection
 
 The primary objective of V1 was to minimize financial loss by maximizing **Recall** (capturing as many frauds as possible) while maintaining an operationally manageable False Positive Rate.
+![Fig 1. Class Distribution](https://github.com/renteria-luis/fraud-detection-v1/raw/main/assets/figures/class_distribution.png)
+
+### The Challenge: Extreme Imbalance
+
+The dataset presents a severe imbalance (0.17% Fraud vs 99.83% Legitimate), requiring specialized techniques like scale_pos_weight in XGBoost rather than standard accuracy metrics.
+
 
 | Metric    | What It Measures | If It Increases     | If It Decreases     | Priority      |
 |-----------|-----------------|-------------------|-------------------|---------------|
@@ -196,11 +202,12 @@ This project is evolving. V1 (Current) established a robust classical ML baselin
 
 ## 📜 License
 
-MIT License - see [LICENSE](LICENSE) file for details.
+This project is licensed under the [MIT License](LICENSE).
 
 ## 📬 Contact
 
 **Luis Renteria**  
+
 *Machine Learning Engineer | Data Scientist*
 
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/renteria-luis/) 
