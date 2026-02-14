@@ -21,6 +21,7 @@ The primary objective of V1 was to minimize financial loss by maximizing **Recal
 ### The Challenge: Extreme Imbalance
 
 The dataset presents a severe imbalance (0.17% Fraud vs 99.83% Legitimate), requiring specialized techniques like `scale_pos_weight` in XGBoost rather than standard accuracy metrics.
+
 ![Fig 1. The 598:1 ratio makes standard accuracy a misleading metric](https://github.com/renteria-luis/fraud-detection-v1/raw/main/assets/figures/class_distribution.png)
 
 | Metric    | What It Measures | If It Increases     | If It Decreases     | Priority      |
@@ -59,6 +60,7 @@ Before modeling, an extensive exploratory analysis revealed critical patterns us
 
 1. Feature Separation:
 Variables V14, V10, and V12 showed the strongest discriminative power. As seen below, V14 provides a clear (though not perfect) separation boundary between classes compared to other features.
+
 ![Fig 2. Scatter plot showing V14 vs Top 3 correlated features. Fraud points are distinct outliers](https://github.com/renteria-luis/fraud-detection-v1/raw/main/assets/figures/scatter_v14_vs_top3.png)
 
 ---
@@ -68,6 +70,7 @@ Raw data is never enough. The `src/features` module implements custom Scikit-lea
 
 1. **Temporal Cyclical Encoding**
 EDA revealed a distinct pattern: Fraudulent activity remains consistent during the night, while legitimate transactions drop drastically.
+
 ![Fig 3. Density plot showing the "Night Valley" where legitimate traffic drops, but fraud persists](https://github.com/renteria-luis/fraud-detection-v1/raw/main/assets/figures/time_distribution.png)
 
 Based on this, we engineered:
