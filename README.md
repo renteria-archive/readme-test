@@ -1,213 +1,230 @@
-# 🛡️ Fraud Detection System - V1
+---
+title: Fraud Detection V1
+emoji: 🛡️
+colorFrom: blue
+colorTo: red
+sdk: docker
+pinned: false
+---
+# 🛡️ Fraud Detection System - V1 (PaySim)
 
-**End-to-end credit card fraud detection using XGBoost, FastAPI & Docker**
+**End-to-end financial fraud detection using XGBoost, Streamlit, FastAPI & Docker**
 
 ![Python](https://img.shields.io/badge/Python-3.10-blue?style=flat&logo=python&logoColor=white)
 ![XGBoost](https://img.shields.io/badge/XGBoost-2.0.3-red?style=flat)
+![Streamlit](https://img.shields.io/badge/Streamlit-1.x-FF4B4B?style=flat&logo=streamlit&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.111-009688?style=flat&logo=fastapi&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=flat&logo=docker&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-green?style=flat)
 ![Status](https://img.shields.io/badge/Status-V1_Complete-success?style=flat)
+
 > **High-Recall Operational Fraud Detection Pipeline.**
-> 
-> A production-ready Machine Learning system designed to identify fraudulent transactions in highly imbalanced datasets ($598:1$). Engineered with a focus on modularity, reproducibility, and real-time inference using Docker and FastAPI.
+>
+> A production-ready Machine Learning system trained on the PaySim synthetic financial dataset. Designed to detect fraudulent mobile money transfers with a focus on modularity, reproducibility, and real-time inference.
 
 ---
 
-## 📊 Executive Summary & Model Selection
+## 📊 Executive Summary
 
-The primary objective of V1 was to minimize financial loss by maximizing **Recall** (capturing as many frauds as possible) while maintaining an operationally manageable False Positive Rate.
+The primary objective of V1 was to maximize **Recall** — capturing as many fraudulent transactions as possible — while maintaining an operationally manageable false positive rate.
 
-**Key metrics:** Recall captures real frauds (higher → fewer losses), Precision measures true alerts (higher → fewer false alarms), PR-AUC shows overall fraud separation ability. F1-Score, ROC-AUC, and Accuracy are not used in production.
+**Key metrics:** Recall captures real frauds (higher → fewer losses). Precision measures alert quality (higher → fewer false alarms). PR-AUC measures overall fraud separation ability. Accuracy is discarded due to the 349:1 class imbalance.
 
 ### The Challenge: Extreme Imbalance
 
-The dataset presents a severe imbalance (0.17% Fraud vs 99.83% Legitimate), requiring specialized techniques like `scale_pos_weight` in XGBoost rather than standard accuracy metrics.
+The dataset presents a severe imbalance — only 0.29% of transactions after filtering are fraudulent. Standard accuracy would reach 99.7% by predicting everything as legitimate, which is useless for fraud detection.
 
-![Fig 1. The 598:1 ratio makes standard accuracy a misleading metric](https://github.com/renteria-luis/fraud-detection-v1/raw/main/assets/figures/class_distribution.png)
+![Fig 1. The 349:1 ratio makes standard accuracy a misleading metric](https://github.com/renteria-luis/fraud-detection-v1/raw/main/assets/figures/class_distribution.png)
 
-### Model Benchmarking
+### Model Benchmarking (threshold = 0.2226 for all)
 
-Three architectures were evaluated during the experimentation phase. **XGBoost** was selected as the production model due to its superior handling of class imbalance via `scale_pos_weight` and inference speed.
+| Model | Precision | Recall | F1 | PR-AUC |
+|---|---|---|---|---|
+| Logistic Regression | 0.65 | 0.40 | 0.50 | 0.48 |
+| Random Forest | 0.76 | 0.78 | 0.77 | 0.81 |
+| **XGBoost (Default)** | **0.84** | **0.85** | **0.84** | **0.91** |
+| XGBoost (Tuned) | 0.24 | 0.98 | 0.39 | 0.92 |
 
-| **Model**               | **Recall** | **Precision** | **PR-AUC** | **Verdict**                                  |
-|-------------------------|------------|---------------|------------|---------------------------------------------|
-| Logistic Regression      | 0.71       | 0.70          | 0.74       | Baseline. Many false positives              |
-| Random Forest            | **0.86**   | 0.77          | 0.87       | High precision, missed crucial fraud        |
-| XGBoost (Tuned)          | **0.87**   | 0.82          | **0.88**   | **Selected.** Best Recall/Precision balance|
-
+> XGBoost Tuned achieved the highest PR-AUC (0.92) but produced a distorted precision curve at low thresholds, making threshold selection unreliable. XGBoost Default was selected for its cleaner and more stable behavior.
 
 ### Production Performance (V1)
 
-- **Operational Threshold:** `0.2072` (Optimized for F2-Score/Recall).
-- **Business Impact:** The model captures **87%** of fraudulent transactions.
-- **Latency:** ~10ms per transaction via FastAPI.
+| Threshold | Precision | Recall | F1 |
+|---|---|---|---|
+| 0.5 (default) | 0.93 | 0.79 | 0.85 |
+| **0.2226 (operational)** | **0.84** | **0.85** | **0.84** |
+
+- **PR-AUC:** `0.9079`
+- **ROC-AUC:** `0.9285`
+- **Operational Threshold:** `0.2226` — lowered from 0.5 to recover the 6% of fraud missed at default. In fraud detection, a missed fraud costs more than a false alarm.
+
+![Fig 2. Confusion matrix at operational threshold 0.2226](https://github.com/renteria-luis/fraud-detection-v1/raw/main/assets/figures/confusion_matrix.png)
 
 ---
+
 ## 🔎 Key Data Insights (EDA)
 
-Before modeling, an extensive exploratory analysis revealed critical patterns used for feature selection.
+**1. Fraud is type-specific.** Fraudulent activity occurs exclusively in `TRANSFER` (0.77% fraud rate) and `CASH_OUT` (0.18%) transactions. `PAYMENT`, `CASH_IN`, and `DEBIT` have zero fraud — they were removed from the dataset entirely to eliminate noise.
 
-1. Feature Separation:
-Variables V14, V10, and V12 showed the strongest discriminative power. As seen below, V14 provides a clear (though not perfect) separation boundary between classes compared to other features.
+**2. Fraud is time-agnostic (bot behavior).** Legitimate transactions follow a human circadian cycle — clear peaks during business hours and a sharp drop at night. Fraud is flat and constant across all hours, consistent with automated bot activity. Transactions between 00:00–06:00 are disproportionately risky.
 
-![Fig 2. Scatter plot showing V14 vs Top 3 correlated features. Fraud points are distinct outliers](https://github.com/renteria-luis/fraud-detection-v1/raw/main/assets/figures/scatter_v14_vs_top3.png)
+![Fig 3. Fraud is flat across all hours while legitimate traffic follows a circadian cycle](https://github.com/renteria-luis/fraud-detection-v1/raw/main/assets/figures/time_distribution.png)
+
+**3. A simulation artifact was corrected.** Legitimate transactions drop sharply after day 17 of the simulation while fraud continues through day 30 — an artifact of the synthetic data generator. The dataset was truncated at the last step where legitimate traffic exists to prevent the model from learning a false "late-month = fraud" pattern.
 
 ---
-## ⚙️ Feature Engineering Strategy
 
-Raw data is never enough. The `src/features` module implements custom Scikit-learn transformers to extract signal from noise:
+## ⚙️ Feature Engineering
 
-1. **Temporal Cyclical Encoding**
-EDA revealed a distinct pattern: Fraudulent activity remains consistent during the night, while legitimate transactions drop drastically. However, For this version, V1…V28 remain untouched to preserve their principal component properties.
+Raw columns are never fed directly to the model. The `src/features/engineering.py` module implements a custom `PaySimFeatures` sklearn transformer that fits on training data and transforms both splits cleanly.
 
-![Fig 3. Density plot showing the "Night Valley" where legitimate traffic drops, but fraud persists](https://github.com/renteria-luis/fraud-detection-v1/raw/main/assets/figures/time_distribution.png)
+**Behavioral aggregates** (fitted on train, applied to test):
+- `dest_tx_count` — how many transactions has this destination received? Mule accounts accumulate many.
+- `dest_unique_orig` — how many different senders? Mules receive from multiple sources.
 
-Based on this, we engineered:
+**Transaction signals:**
+- `is_transfer`, `is_cash_out` — type encoded as binary flags.
+- `log_amount` — log-transformed amount to reduce right-skewness.
+- `is_large_tx` — binary flag for amounts above the 95th percentile.
+- `is_round_amount` — round amounts (mod 1000 = 0) are a weak but consistent signal.
 
-  - **Cyclical Encoding:** Converted `Time` to Sine/Cosine components $(sin(2πt/24))$ to preserve 24h continuity.
-  - **Is Night Flag:** Binary feature for transactions between 22:00–06:00.
-    
-2. **Amount Scaling**
-  - **Log Transformation:** Applied $\log(1 + x)$ to `Amount` to handle extreme right-skewness.
-  - **Micro/Macro Flags:** Binary features for very small $(<\$1)$ or large $(>95th percentile)$ transactions.
+**Temporal signals:**
+- `hour_of_day` — derived from simulation step (step % 24).
+- `is_night` — binary flag for hours 00–06.
 
-3. **Anonymized Features:**
-  - `V1`...`V28` (PCA components) were left otherwise untouched to preserve their principal component properties.
+**Balance signals** (intentional leakage — documented in notebook):
+- `dest_was_empty` — destination account had $0 before receiving funds. Strong mule account signal.
+- `log_dest_balance`, `amount_to_dest_ratio` — context around destination balance.
+- `log_orig_balance` — origin account balance before transaction. Technically available pre-transaction, but artificially predictive in PaySim due to synthetic data patterns.
 
 ---
 
 ## 📁 Project Architecture
 
-This repository follows strict **MLOps principles**. Code is modularized into a source package (`src`) rather than living in notebooks.
-
-> **Note on Language Stats:** You might notice GitHub reports this repo as ~94% Python. Jupyter Notebooks are explicitly marked as documentation in `.gitattributes` to reflect the engineering effort put into the `.py` source code.
-
 ```
 .
-├── api/                       # FastAPI Application Layer
-│   ├── main.py                # Endpoints & Singleton Model Loader
-│   └── schemas.py             # Pydantic Data Validation Schemas
-├── data/                      # Data storage (gitignored)
-├── docker-compose.yml         # Production Orchestration (Base)
-├── docker-compose.override.yml# Local Development (Hot-Reload)
-├── Dockerfile                 # Multi-stage, Non-root, Slim Image
-├── models/                    # Serialized Artifacts
-│   ├── fraud_detection_v1_xgb.pkl  # The Trained Pipeline
-│   └── metadata_v1.json       # Training Metadata
-├── notebooks/                 # Experimentation & Analysis
-│   ├── 01_eda.ipynb           # Exploratory Data Analysis
-│   └── 02_baseline_models.ipynb # Model Training & Evaluation
-├── params.yaml                # Single Source of Truth for Config
-├── src/                       # Core Logic Package
-│   ├── evaluation/            # Metrics & Visualization logic
-│   ├── features/              # Custom Transformers (FE)
-│   ├── models/                # Training Pipelines (sklearn/xgb)
-│   └── utils/                 # Helpers
-└── requirements.txt           # Dependencies
+├── api/                        # FastAPI Application Layer
+│   ├── main.py                 # Endpoints & Singleton Model Loader
+│   └── schemas.py              # Pydantic Data Validation Schemas
+├── app.py                      # Streamlit Interactive Demo
+├── assets/figures/             # EDA & Model Evaluation Plots
+├── data/                       # Data storage (gitignored)
+├── docker-compose.yml          # Production Orchestration (FastAPI)
+├── docker-compose.override.yml # Local Development (Hot-Reload)
+├── Dockerfile                  # Multi-stage, Non-root, Slim Image
+├── models/
+│   ├── fraud_detection_v1_xgb.pkl  # Trained Pipeline
+│   └── metadata_v1.json            # Training Metadata & Metrics
+├── notebooks/
+│   ├── 01_eda_paysim.ipynb     # Exploratory Data Analysis
+│   └── 02_baseline_models.ipynb # Training, Evaluation & Threshold Analysis
+├── params.yaml                 # Single Source of Truth for Config
+├── src/
+│   ├── config.py               # Feature lists, paths, constants
+│   ├── data/                   # loader.py, splitter.py
+│   ├── evaluation/             # metrics.py (PR curves, classification report)
+│   ├── features/               # engineering.py (PaySimFeatures transformer)
+│   ├── models/                 # builder.py (pipeline construction)
+│   └── utils/                  # helpers.py
+└── train.py                    # Standalone retraining script
 ```
 
 ---
 
 ## 🚀 Quick Start
 
-### Option A: Docker (Recommended)
+### Option A: Docker
 
-Run the entire system (API + Environment) without installing Python locally.
-
+**Streamlit app (HuggingFace / local):**
 ```bash
-# 1. Clone the repository
-git clone https://github.com/renteria-luis/fraud-detection-v1.git
-cd fraud-detection-v1
+docker build -t fraud-detection:v1 .
+docker run -p 7860:7860 fraud-detection:v1
+```
 
-# 2. Build and Run
+**FastAPI (local development):**
+```bash
 docker compose up --build
 ```
 
-- **API Health Check:** `http://localhost:8000/health`
-- **Interactive Docs (Swagger):** `http://localhost:8000/docs`
-  
+- Streamlit: `http://localhost:7860`
+- API Health: `http://localhost:8000/health`
+- Swagger: `http://localhost:8000/docs`
 
-### Option B: Local Development
-
-To run locally with **hot-reloading** enabled (changes in `src/` reflect immediately):
+### Option B: Local (no Docker)
 
 ```bash
-# Uses docker-compose.override.yml automatically
-docker compose up
+pip install -r requirements.txt
+streamlit run app.py
 ```
 
 ---
 
-## 📡 API Usage Example
-
-Once the container is running, you can detect fraud via `curl` or Python:
+## 📡 API Usage
 
 ```bash
 curl -X POST "http://localhost:8000/predict" \
      -H "Content-Type: application/json" \
-     -d '{"Time":1000.0,"Amount":150.0,"V1":-1.3,"V2":1.1,"V3":-0.5,"V4":0.3,"V5":0.2,"V6":-0.1,"V7":0.5,"V8":0.2,"V9":-0.4,"V10":0.1,"V11":-0.5,"V12":0.3,"V13":0.1,"V14":-0.2,"V15":0.4,"V16":-0.3,"V17":0.2,"V18":0.1,"V19":-0.1,"V20":0.1,"V21":0.2,"V22":-0.1,"V23":0.1,"V24":0.1,"V25":-0.2,"V26":0.1,"V27":0.1,"V28":-0.1}'
-
+     -d '{
+       "step": 10,
+       "type": "TRANSFER",
+       "amount": 50000.0,
+       "nameOrig": "C123456789",
+       "oldbalanceOrg": 50000.0,
+       "nameDest": "C987654321",
+       "oldbalanceDest": 0.0
+     }'
 ```
-**Response:**
 
+**Response:**
 ```json
 {
-  "fraud_probability": 7.73e-07,
-  "is_fraud": false,
-  "threshold_used": 0.2072,
-  "model_version": "1.0.0"
+  "fraud_probability": 0.9341,
+  "is_fraud": true,
+  "threshold_used": 0.2226,
+  "version": "1.0.0"
 }
 ```
 
 ---
 
-## 🔮 Roadmap: V1 vs V2
+## 📅 Roadmap
 
-This project is evolving. V1 (Current) established a robust classical ML baseline with XGBoost. **V2 (Planned)** will introduce Deep Learning to capture more complex patterns and interactions that may be missed by tree-based models.
+| Feature | V1 (Current) | V2 (Planned) |
+|---|---|---|
+| Dataset | PaySim (Synthetic) | Real transaction data |
+| Algorithm | XGBoost (Default) | TBD — DL if dataset justifies it |
+| Validation | Stratified random split | Out-of-time split |
+| Explainability | Feature Importance | SHAP |
+| Features | Static behavioral aggregates | Temporal velocity features |
 
-| **Feature** | **V1 (Current)** | **V2 (Planned)** |
-| --- | --- | --- |
-| **Algorithm** | XGBoost (eXtreme Gradient Boosting) | Deep Neural Network (PyTorch) |
-| **Loss Function** | Binary cross-entropy (Weighted) | Focal Loss (Hard Example Mining) |
-| **Explainability** | Feature Importance | SHAP (DeepExplainer) |
-| **Compute** | CPU Optimized | GPU Accelerated (CUDA) |
-
----
-
-## 📓 Notebooks Guide
-
-### [`01_eda.ipynb`](notebooks/01_eda.ipynb) - Exploratory Data Analysis
-**Key Findings:**
-- Severe class imbalance (598:1 ratio)
-- Time exhibits clear day/night patterns
-- Amount is highly right-skewed
-- V14, V12, V10 are most correlated with fraud
-
-**Outputs:** Distribution plots, correlation heatmap, temporal analysis
-
-### [`02_baseline_models.ipynb`](notebooks/02_baseline_models.ipynb) - Model Training & Evaluation
-**Contents:**
-1. Feature engineering implementation
-2. Pipeline construction (preprocessing + model)
-3. Model comparison (LogReg, RF, XGBoost)
-4. Hyperparameter tuning (RandomizedSearchCV)
-5. Threshold optimization for production
-6. Model export & metadata generation
-
-**Outputs:** Trained model (.pkl), metrics, confusion matrix, feature importance
+V2 is contingent on finding a dataset with real transaction data. Further iteration on PaySim carries diminishing returns given its synthetic nature and single fraud pattern.
 
 ---
 
-## 📜 License
+## 📓 Notebooks
 
-This project is licensed under the [MIT License](LICENSE).
+### [`01_eda_paysim.ipynb`](notebooks/01_eda_paysim.ipynb) — Exploratory Data Analysis
+- Class imbalance analysis (349:1)
+- Transaction type fraud rates
+- Temporal patterns (circadian cycle vs. flat fraud)
+- Simulation artifact detection and correction (step 718 truncation)
+- Cardinality analysis for nameOrig / nameDest
+- Feature engineering motivation
+
+### [`02_baseline_models.ipynb`](notebooks/02_baseline_models.ipynb) — Training & Evaluation
+- Pipeline construction and feature sanity checks
+- XGBoost training with `scale_pos_weight`
+- Optuna hyperparameter search (100 trials, 5-fold CV)
+- Threshold analysis and operational threshold selection
+- Confusion matrix and PR curve analysis
+- Model export and metadata generation
+
+---
 
 ## 📬 Contact
 
-**Luis Renteria**  
-
+**Luis Renteria**
 *Machine Learning Engineer | Data Scientist*
 
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/renteria-luis/) 
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/renteria-luis/)
 [![Email](https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:luis.renteria.dev@gmail.com)
