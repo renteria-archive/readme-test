@@ -97,7 +97,7 @@ pip install -e '.[dev]'
 
 ## Roadmap
 
-- [ ] Phase 0: repo scaffold and environment (current)
+- [x] Phase 0: repo scaffold and environment (current)
 - [ ] Phase 1: graph and GNN fundamentals, EDA
 - [ ] Phase 2: XGBoost baseline and PyG basics
 - [ ] Phase 3: GraphSAGE training with neighbor sampling
